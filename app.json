@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Scam Shield",
+    "slug": "scam-shield-android",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["android"],
+    "android": {
+      "package": "com.naren.scamshield",
+      "adaptiveIcon": {
+        "backgroundColor": "#101820"
+      }
+    },
+    "extra": {
+      "privacyNote": "Suspicious messages are analyzed locally by default. Configure a backend endpoint only when you control that server."
+    }
+  }
+}
