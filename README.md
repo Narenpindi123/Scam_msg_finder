@@ -7,8 +7,12 @@ Android-first Expo React Native app for analyzing suspicious SMS, email, marketp
 - Lets a user paste a suspicious message.
 - Scores likely scam risk locally with deterministic rules.
 - Highlights red flags and suspicious links.
+- Extracts visible phone numbers and email addresses from suspicious messages.
+- Builds a shareable plain-English scan report.
+- Shows a response plan for what to do next.
 - Gives plain-English next actions.
 - Saves scan history on-device.
+- Includes a Safety Guide tab with common scam signals, incident playbooks, and reporting resources.
 - Keeps AI/API keys out of the mobile app. A future backend endpoint can be configured in Settings.
 
 ## Run on Android

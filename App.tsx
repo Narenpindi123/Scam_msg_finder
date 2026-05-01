@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -12,6 +13,7 @@ import {
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { AnalyzeScreen } from "./src/screens/AnalyzeScreen";
+import { GuideScreen } from "./src/screens/GuideScreen";
 import { HistoryScreen } from "./src/screens/HistoryScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { analyzeMessage, type AnalysisResult } from "./src/services/analyzer";
@@ -26,11 +28,12 @@ import {
 } from "./src/services/storage";
 import { colors, spacing } from "./src/theme/theme";
 
-type TabKey = "analyze" | "history" | "settings";
+type TabKey = "analyze" | "history" | "guide" | "settings";
 
 const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
   { key: "analyze", label: "Analyze", icon: "!" },
   { key: "history", label: "History", icon: "#" },
+  { key: "guide", label: "Guide", icon: "?" },
   { key: "settings", label: "Settings", icon: "*" }
 ];
 
@@ -91,9 +94,23 @@ export default function App() {
     setSettings(next);
   }, []);
 
+  const handleShareReport = useCallback(async () => {
+    if (!result) {
+      return;
+    }
+
+    await Share.share({
+      message: formatReport(result, message)
+    });
+  }, [message, result]);
+
   const content = useMemo(() => {
     if (activeTab === "history") {
       return <HistoryScreen history={history} onClear={handleClearHistory} onOpen={handleReopen} />;
+    }
+
+    if (activeTab === "guide") {
+      return <GuideScreen />;
     }
 
     if (activeTab === "settings") {
@@ -110,6 +127,7 @@ export default function App() {
           setMessage("");
           setResult(null);
         }}
+        onShareReport={handleShareReport}
       />
     );
   }, [
@@ -118,6 +136,7 @@ export default function App() {
     handleClearHistory,
     handleReopen,
     handleSaveSettings,
+    handleShareReport,
     history,
     message,
     result,
@@ -165,6 +184,42 @@ export default function App() {
       </SafeAreaView>
     </SafeAreaProvider>
   );
+}
+
+function formatReport(result: AnalysisResult, message: string): string {
+  const redFlags = result.signals.map((signal) => `- ${signal.label}: ${signal.detail}`).join("\n");
+  const links = result.links.length > 0 ? result.links.map((link) => `- ${link}`).join("\n") : "- None";
+  const visibleContacts = result.contacts ?? [];
+  const contacts =
+    visibleContacts.length > 0
+      ? visibleContacts.map((contact) => `- ${contact.label}: ${contact.value}`).join("\n")
+      : "- None";
+  const plan = (result.responsePlan ?? result.recommendedActions)
+    .map((action) => `- ${action}`)
+    .join("\n");
+
+  return [
+    "Scam Shield report",
+    `${result.riskLevel} risk (${result.score}/100)`,
+    result.category,
+    "",
+    result.summary,
+    "",
+    "Message:",
+    message.trim(),
+    "",
+    "Red flags:",
+    redFlags,
+    "",
+    "Visible links:",
+    links,
+    "",
+    "Visible contact points:",
+    contacts,
+    "",
+    "Response plan:",
+    plan
+  ].join("\n");
 }
 
 const styles = StyleSheet.create({

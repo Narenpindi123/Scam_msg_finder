@@ -18,6 +18,7 @@ type AnalyzeScreenProps = {
   onAnalyze: () => void;
   onChangeMessage: (message: string) => void;
   onClear: () => void;
+  onShareReport: () => void;
 };
 
 export function AnalyzeScreen({
@@ -25,7 +26,8 @@ export function AnalyzeScreen({
   result,
   onAnalyze,
   onChangeMessage,
-  onClear
+  onClear,
+  onShareReport
 }: AnalyzeScreenProps) {
   return (
     <ScrollView
@@ -50,7 +52,7 @@ export function AnalyzeScreen({
         </View>
       </Section>
 
-      {result ? <ResultPanel result={result} /> : <EmptyResult />}
+      {result ? <ResultPanel result={result} onShareReport={onShareReport} /> : <EmptyResult />}
     </ScrollView>
   );
 }
@@ -67,13 +69,23 @@ function EmptyResult() {
   );
 }
 
-function ResultPanel({ result }: { result: AnalysisResult }) {
+function ResultPanel({
+  result,
+  onShareReport
+}: {
+  result: AnalysisResult;
+  onShareReport: () => void;
+}) {
+  const contacts = result.contacts ?? [];
+  const responsePlan = result.responsePlan ?? result.recommendedActions;
+
   return (
     <View>
       <Section>
         <RiskBadge level={result.riskLevel} score={result.score} />
         <Text style={styles.category}>{result.category}</Text>
         <Text style={styles.summary}>{result.summary}</Text>
+        <Button label="Share report" onPress={onShareReport} style={styles.shareButton} variant="secondary" />
       </Section>
 
       <Section title="Red flags">
@@ -91,6 +103,26 @@ function ResultPanel({ result }: { result: AnalysisResult }) {
           ))}
         </Section>
       ) : null}
+
+      {contacts.length > 0 ? (
+        <Section title="Visible contact points">
+          {contacts.map((contact) => (
+            <View key={`${contact.type}-${contact.value}`} style={styles.contactRow}>
+              <Text style={styles.contactLabel}>{contact.label}</Text>
+              <Text style={styles.contactValue}>{contact.value}</Text>
+            </View>
+          ))}
+        </Section>
+      ) : null}
+
+      <Section title="Response plan">
+        {responsePlan.map((action, index) => (
+          <View key={action} style={styles.planRow}>
+            <Text style={styles.planNumber}>{index + 1}</Text>
+            <Text style={styles.actionText}>{action}</Text>
+          </View>
+        ))}
+      </Section>
 
       <Section title="Next actions">
         {result.recommendedActions.map((action) => (
@@ -165,6 +197,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: spacing.sm
   },
+  shareButton: {
+    marginTop: spacing.lg
+  },
   signalRow: {
     flexDirection: "row",
     gap: spacing.md,
@@ -216,6 +251,41 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: spacing.sm,
     padding: spacing.sm
+  },
+  contactRow: {
+    backgroundColor: colors.surfaceAlt,
+    borderColor: colors.border,
+    borderRadius: 6,
+    borderWidth: 1,
+    marginBottom: spacing.sm,
+    padding: spacing.sm
+  },
+  contactLabel: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 2
+  },
+  contactValue: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "700"
+  },
+  planRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.sm
+  },
+  planNumber: {
+    backgroundColor: colors.primarySoft,
+    borderRadius: 6,
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "900",
+    height: 22,
+    lineHeight: 22,
+    textAlign: "center",
+    width: 22
   },
   actionRow: {
     flexDirection: "row",

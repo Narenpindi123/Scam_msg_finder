@@ -7,6 +7,12 @@ export type Signal = {
   evidence?: string;
 };
 
+export type ExtractedContact = {
+  type: "phone" | "email";
+  label: string;
+  value: string;
+};
+
 export type AnalysisResult = {
   id: string;
   riskLevel: RiskLevel;
@@ -15,7 +21,9 @@ export type AnalysisResult = {
   summary: string;
   signals: Signal[];
   links: string[];
+  contacts: ExtractedContact[];
   recommendedActions: string[];
+  responsePlan: string[];
   createdAt: string;
 };
 
@@ -98,12 +106,44 @@ const rules: Rule[] = [
     severity: "warning",
     points: 12,
     pattern: /\b(telegram|whatsapp|signal|google chat|text me only|do not call)\b/i
+  },
+  {
+    label: "Marketplace pressure",
+    detail: "Marketplace scams often ask for deposits, shipping workarounds, or communication away from the platform.",
+    severity: "warning",
+    points: 14,
+    pattern: /\b(deposit|hold the item|shipping agent|courier will pick up|marketplace protection|zelle only|cashier'?s check)\b/i
+  },
+  {
+    label: "Order or invoice bait",
+    detail: "Fake invoices and order confirmations try to make users call a scam support number.",
+    severity: "warning",
+    points: 16,
+    pattern: /\b(invoice|receipt|subscription renewed|order confirmation|charged|billing department|cancel this order)\b/i
+  },
+  {
+    label: "Recovery scam language",
+    detail: "Promises to recover lost crypto, bank funds, or social accounts often lead to more fees or identity theft.",
+    severity: "danger",
+    points: 20,
+    pattern: /\b(recover your funds|asset recovery|wallet recovery|hacked account recovery|refund agent|chargeback specialist)\b/i
+  },
+  {
+    label: "Romance or trust-building bait",
+    detail: "Fraudsters may build urgency through personal trust, emergencies, or requests to keep the conversation private.",
+    severity: "warning",
+    points: 13,
+    pattern: /\b(my love|sweetheart|emergency travel|military deployment|private conversation|do not tell anyone)\b/i
   }
 ];
 
 const urlPattern = /\bhttps?:\/\/[^\s<>"')]+|\b(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s<>"')]+)?/gi;
 const shortenerPattern = /\b(bit\.ly|tinyurl\.com|t\.co|goo\.gl|ow\.ly|is\.gd|buff\.ly|cutt\.ly|rebrand\.ly|shorturl\.at)\b/i;
 const riskyTldPattern = /\.(zip|mov|top|xyz|click|quest|cam|monster|icu|tk|ml|ga|cf)(?:\/|\b)/i;
+const phonePattern = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b/g;
+const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+const obfuscatedLinkPattern = /\b(?:[a-z0-9-]+\s*(?:dot|\.)\s*)+[a-z]{2,}\b/i;
+const lookalikePattern = /\b(?:paypaI|arnazon|rnicrosoft|appIe|usps-support|fedex-track|chase-secure)\b/i;
 const brandDomains: Record<string, string[]> = {
   usps: ["usps.com"],
   ups: ["ups.com"],
@@ -122,6 +162,7 @@ const brandDomains: Record<string, string[]> = {
 export function analyzeMessage(message: string): AnalysisResult {
   const normalized = message.replace(/\s+/g, " ").trim();
   const links = extractLinks(normalized);
+  const contacts = extractContacts(normalized);
   const signals: Signal[] = [];
   let score = 0;
 
@@ -147,6 +188,16 @@ export function analyzeMessage(message: string): AnalysisResult {
     });
   }
 
+  if (contacts.length > 0) {
+    score += Math.min(16, contacts.length * 8);
+    signals.push({
+      label: "Direct contact requested",
+      detail: "Phone numbers or email addresses in unexpected messages can route you to the scammer instead of the real organization.",
+      severity: "warning",
+      evidence: contacts[0].value
+    });
+  }
+
   if (links.some((link) => shortenerPattern.test(link))) {
     score += 24;
     signals.push({
@@ -164,6 +215,25 @@ export function analyzeMessage(message: string): AnalysisResult {
       detail: "The link uses a domain ending that is common in low-trust or throwaway sites.",
       severity: "warning",
       evidence: links.find((link) => riskyTldPattern.test(link))
+    });
+  }
+
+  if (obfuscatedLinkPattern.test(normalized) && links.length === 0) {
+    score += 14;
+    signals.push({
+      label: "Obfuscated link",
+      detail: "Spelling a website as words can bypass filters and make a destination harder to inspect.",
+      severity: "warning"
+    });
+  }
+
+  if (lookalikePattern.test(normalized)) {
+    score += 18;
+    signals.push({
+      label: "Lookalike brand spelling",
+      detail: "The message appears to use a brand-like spelling that can be confused with a trusted company.",
+      severity: "danger",
+      evidence: normalized.match(lookalikePattern)?.[0]
     });
   }
 
@@ -200,7 +270,9 @@ export function analyzeMessage(message: string): AnalysisResult {
     summary: buildSummary(riskLevel, category, signals),
     signals: signals.length > 0 ? signals : [safeSignal()],
     links,
+    contacts,
     recommendedActions: getRecommendedActions(riskLevel, category, links),
+    responsePlan: getResponsePlan(riskLevel, category, links, contacts),
     createdAt: new Date().toISOString()
   };
 }
@@ -209,6 +281,21 @@ function extractLinks(message: string): string[] {
   return Array.from(new Set(message.match(urlPattern) ?? [])).map((link) =>
     link.replace(/[.,;:!?]+$/, "")
   );
+}
+
+function extractContacts(message: string): ExtractedContact[] {
+  const phones = Array.from(new Set(message.match(phonePattern) ?? [])).map((value) => ({
+    type: "phone" as const,
+    label: "Phone",
+    value
+  }));
+  const emails = Array.from(new Set(message.match(emailPattern) ?? [])).map((value) => ({
+    type: "email" as const,
+    label: "Email",
+    value
+  }));
+
+  return [...phones, ...emails].slice(0, 6);
 }
 
 function findBrandMismatch(message: string, links: string[]) {
@@ -269,6 +356,18 @@ function getCategory(message: string, signals: Signal[]): string {
     return "Tech support scam";
   }
 
+  if (/invoice|subscription|order confirmation|charged|billing/i.test(message)) {
+    return "Fake invoice or order scam";
+  }
+
+  if (/recover your funds|wallet recovery|asset recovery|chargeback/i.test(message)) {
+    return "Recovery scam";
+  }
+
+  if (/deposit|shipping agent|courier|cashier'?s check|marketplace/i.test(message)) {
+    return "Marketplace scam";
+  }
+
   if (labels.includes("credential")) {
     return "Credential phishing";
   }
@@ -310,7 +409,42 @@ function getRecommendedActions(riskLevel: RiskLevel, category: string, links: st
     actions.push("Verify the recruiter through the company's official careers page before sharing identity documents.");
   }
 
+  if (category.includes("invoice") || category.includes("order")) {
+    actions.push("Check the account from the official app before calling any number in the message.");
+  }
+
   return actions;
+}
+
+function getResponsePlan(
+  riskLevel: RiskLevel,
+  category: string,
+  links: string[],
+  contacts: ExtractedContact[]
+): string[] {
+  const plan = ["Pause before replying, clicking, calling, or paying.", "Verify through a channel you already trust."];
+
+  if (links.length > 0) {
+    plan.push("Do not sign in from the message link. Open the official app or type the official website.");
+  }
+
+  if (contacts.length > 0) {
+    plan.push("Do not call or email the contact listed in the message. Use a known number or official support page.");
+  }
+
+  if (riskLevel === "Critical" || riskLevel === "High") {
+    plan.push("Save a screenshot and warn the person or account the message is pretending to be from.");
+  }
+
+  if (category.includes("Banking")) {
+    plan.push("If money or card data was shared, contact the bank from the card number and ask about fraud controls.");
+  }
+
+  if (category.includes("Credential")) {
+    plan.push("If a password or code was shared, change the password and revoke active sessions from a trusted device.");
+  }
+
+  return plan;
 }
 
 function safeSignal(): Signal {
