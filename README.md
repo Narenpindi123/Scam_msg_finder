@@ -2,6 +2,12 @@
 
 Android-first Expo React Native app for analyzing suspicious SMS, email, marketplace, delivery, job, banking, and social messages.
 
+## Download APK
+
+Install the latest Android APK:
+
+https://expo.dev/artifacts/eas/6LwLToQMVQUjvJJCSomYPx.apk
+
 ## What it does
 
 - Lets a user paste a suspicious message.
