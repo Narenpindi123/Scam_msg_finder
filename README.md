@@ -6,7 +6,14 @@ Android-first Expo React Native app for analyzing suspicious SMS, email, marketp
 
 Install the latest Android APK:
 
-https://expo.dev/artifacts/eas/6LwLToQMVQUjvJJCSomYPx.apk
+- GitHub: [dist/scam-shield-v0.1.0.apk](dist/scam-shield-v0.1.0.apk)
+- Expo artifact: https://expo.dev/artifacts/eas/6LwLToQMVQUjvJJCSomYPx.apk
+
+SHA-256:
+
+```text
+90115b3b664392a7d9200348bc4db4fb7461eab3b9fd9a95561dc8e27febe306
+```
 
 ## What it does
 
