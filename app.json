@@ -20,6 +20,12 @@
         "projectId": "204b3931-07b7-4bbf-bd1c-9a8cb7a4916a"
       }
     },
-    "owner": "nandu1237"
+    "owner": "nandu1237",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/204b3931-07b7-4bbf-bd1c-9a8cb7a4916a"
+    }
   }
 }

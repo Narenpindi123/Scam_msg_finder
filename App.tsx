@@ -12,11 +12,13 @@ import {
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
+import { AppUpdateBanner } from "./src/components/AppUpdateBanner";
 import { AnalyzeScreen } from "./src/screens/AnalyzeScreen";
 import { GuideScreen } from "./src/screens/GuideScreen";
 import { HistoryScreen } from "./src/screens/HistoryScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { analyzeMessage, type AnalysisResult } from "./src/services/analyzer";
+import { checkForAppUpdate, type AvailableAppUpdate } from "./src/services/appUpdate";
 import {
   clearHistory,
   loadHistory,
@@ -42,6 +44,7 @@ export default function App() {
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [availableUpdate, setAvailableUpdate] = useState<AvailableAppUpdate | null>(null);
   const [settings, setSettings] = useState<AppSettings>({
     backendEndpoint: "",
     analysisMode: "local"
@@ -50,6 +53,22 @@ export default function App() {
   useEffect(() => {
     loadHistory().then(setHistory).catch(() => setHistory([]));
     loadSettings().then(setSettings).catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    checkForAppUpdate()
+      .then((update) => {
+        if (mounted) {
+          setAvailableUpdate(update);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleAnalyze = useCallback(async () => {
@@ -160,6 +179,13 @@ export default function App() {
               <Text style={styles.modePillText}>Local</Text>
             </View>
           </View>
+
+          {availableUpdate ? (
+            <AppUpdateBanner
+              onDismiss={() => setAvailableUpdate(null)}
+              update={availableUpdate}
+            />
+          ) : null}
 
           <View style={styles.content}>{content}</View>
 

@@ -6,18 +6,18 @@ The app runs its scam check locally on the phone. Users can paste a message, rev
 
 ## Download
 
-Download the APK from GitHub:
+Download the latest APK from GitHub:
 
 [Download Scam Shield APK](https://github.com/Narenpindi123/Scam_msg_finder/raw/refs/heads/master/dist/scam-shield-v0.1.0.apk)
 
 Backup Expo download:
 
-https://expo.dev/artifacts/eas/6LwLToQMVQUjvJJCSomYPx.apk
+https://expo.dev/artifacts/eas/bgCAUpcD8yKN5dx6umFncf.apk
 
 APK checksum:
 
 ```text
-90115b3b664392a7d9200348bc4db4fb7461eab3b9fd9a95561dc8e27febe306
+1d0051c268fc580c911a6436f6c81fb490dd94c57ac923ed861d21fde67a4d7d
 ```
 
 ## Install On Android
@@ -72,6 +72,18 @@ Build a new APK with EAS:
 ```bash
 npx eas-cli build -p android --profile apk
 ```
+
+Publish JavaScript and UI updates over the air:
+
+```bash
+npx eas-cli update --branch production --message "Update scam detection rules"
+```
+
+Update the GitHub APK prompt:
+
+1. Upload or commit the new APK to GitHub.
+2. Bump `latestVersion` in `update-manifest.json`.
+3. Set `apkUrl` to the APK download URL.
 
 ## Project
 
