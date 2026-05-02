@@ -35,12 +35,12 @@ export function AnalyzeScreen({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <Section title="Message">
+      <Section title="Check a message">
         <TextInput
           multiline
           numberOfLines={8}
           onChangeText={onChangeMessage}
-          placeholder="Paste a suspicious text, email, DM, or marketplace message..."
+          placeholder="Paste a suspicious text, email, DM, or marketplace message."
           placeholderTextColor={colors.muted}
           style={styles.input}
           textAlignVertical="top"
@@ -60,10 +60,10 @@ export function AnalyzeScreen({
 function EmptyResult() {
   return (
     <Section>
-      <Text style={styles.emptyTitle}>Ready to scan</Text>
+      <Text style={styles.emptyTitle}>Local scan, clear result</Text>
       <Text style={styles.emptyText}>
-        The app checks for urgency, payment pressure, credential requests, suspicious links,
-        impersonation, and common scam categories. Analysis runs locally on this device.
+        Scam Shield checks urgency, payment pressure, credential requests, suspicious links, and
+        impersonation patterns on this device.
       </Text>
     </Section>
   );
@@ -82,8 +82,10 @@ function ResultPanel({
   return (
     <View>
       <Section>
-        <RiskBadge level={result.riskLevel} score={result.score} />
-        <Text style={styles.category}>{result.category}</Text>
+        <View style={styles.resultHeader}>
+          <RiskBadge level={result.riskLevel} score={result.score} />
+          <Text style={styles.category}>{result.category}</Text>
+        </View>
         <Text style={styles.summary}>{result.summary}</Text>
         <Button label="Share report" onPress={onShareReport} style={styles.shareButton} variant="secondary" />
       </Section>
@@ -155,14 +157,14 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl
   },
   input: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: 8,
     borderWidth: 1,
     color: colors.text,
     fontSize: 15,
     lineHeight: 21,
-    minHeight: 164,
+    minHeight: 176,
     padding: spacing.md
   },
   actions: {
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "800",
     marginBottom: spacing.sm
   },
@@ -186,10 +188,11 @@ const styles = StyleSheet.create({
   },
   category: {
     color: colors.text,
-    fontSize: 22,
-    fontWeight: "900",
+    flex: 1,
+    fontSize: 18,
+    fontWeight: "800",
     letterSpacing: 0,
-    marginTop: spacing.md
+    textAlign: "right"
   },
   summary: {
     color: colors.muted,
@@ -198,7 +201,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm
   },
   shareButton: {
-    marginTop: spacing.lg
+    marginTop: spacing.md
+  },
+  resultHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.md,
+    justifyContent: "space-between"
   },
   signalRow: {
     flexDirection: "row",
@@ -236,7 +245,9 @@ const styles = StyleSheet.create({
   },
   evidence: {
     backgroundColor: colors.surfaceAlt,
+    borderColor: colors.border,
     borderRadius: 6,
+    borderWidth: 1,
     color: colors.text,
     fontSize: 12,
     marginTop: spacing.sm,

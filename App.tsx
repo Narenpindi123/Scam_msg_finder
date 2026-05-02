@@ -33,10 +33,10 @@ import { colors, spacing } from "./src/theme/theme";
 type TabKey = "analyze" | "history" | "guide" | "settings";
 
 const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
-  { key: "analyze", label: "Analyze", icon: "!" },
-  { key: "history", label: "History", icon: "#" },
-  { key: "guide", label: "Guide", icon: "?" },
-  { key: "settings", label: "Settings", icon: "*" }
+  { key: "analyze", label: "Analyze", icon: "Scan" },
+  { key: "history", label: "History", icon: "Log" },
+  { key: "guide", label: "Guide", icon: "Help" },
+  { key: "settings", label: "Settings", icon: "Gear" }
 ];
 
 export default function App() {
@@ -173,10 +173,10 @@ export default function App() {
           <View style={styles.header}>
             <View>
               <Text style={styles.title}>Scam Shield</Text>
-              <Text style={styles.subtitle}>Suspicious message risk check</Text>
+              <Text style={styles.subtitle}>Minimal message risk check</Text>
             </View>
             <View style={styles.modePill}>
-              <Text style={styles.modePillText}>Local</Text>
+              <Text style={styles.modePillText}>v2 Local</Text>
             </View>
           </View>
 
@@ -262,12 +262,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm
   },
   title: {
     color: colors.text,
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: "800",
     letterSpacing: 0
   },
@@ -277,15 +277,15 @@ const styles = StyleSheet.create({
     marginTop: 2
   },
   modePill: {
-    backgroundColor: colors.successSoft,
-    borderColor: colors.success,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderRadius: 6,
     borderWidth: 1,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6
   },
   modePillText: {
-    color: colors.successText,
+    color: colors.text,
     fontSize: 12,
     fontWeight: "700"
   },
@@ -293,13 +293,11 @@ const styles = StyleSheet.create({
     flex: 1
   },
   tabBar: {
-    backgroundColor: colors.surface,
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
+    backgroundColor: colors.background,
     flexDirection: "row",
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
-    paddingBottom: spacing.sm
+    paddingBottom: spacing.md
   },
   tabButton: {
     alignItems: "center",
@@ -310,12 +308,15 @@ const styles = StyleSheet.create({
     minHeight: 54
   },
   tabButtonActive: {
-    backgroundColor: colors.primarySoft
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1
   },
   tabIcon: {
     color: colors.muted,
-    fontSize: 16,
-    fontWeight: "900"
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
   },
   tabLabel: {
     color: colors.muted,

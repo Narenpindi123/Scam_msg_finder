@@ -57,17 +57,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     flexDirection: "row",
-    gap: spacing.sm,
-    minHeight: 38,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm
+    gap: spacing.xs,
+    minHeight: 34,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6
   },
   level: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "900"
   },
   score: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800"
   }
 });

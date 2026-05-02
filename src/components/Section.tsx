@@ -23,14 +23,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 8,
     borderWidth: 1,
-    marginBottom: spacing.md,
-    padding: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.md,
     ...shadows.card
   },
   title: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "800",
-    marginBottom: spacing.md
+    marginBottom: spacing.sm
   }
 });

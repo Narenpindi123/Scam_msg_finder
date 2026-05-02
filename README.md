@@ -8,16 +8,16 @@ The app runs its scam check locally on the phone. Users can paste a message, rev
 
 Download the latest APK from GitHub:
 
-[Download Scam Shield APK](https://github.com/Narenpindi123/Scam_msg_finder/raw/refs/heads/master/dist/scam-shield-v0.1.0.apk)
+[Download Scam Shield APK](https://github.com/Narenpindi123/Scam_msg_finder/raw/refs/heads/master/dist/scam-shield-v0.2.0.apk)
 
 Backup Expo download:
 
-https://expo.dev/artifacts/eas/bgCAUpcD8yKN5dx6umFncf.apk
+https://expo.dev/artifacts/eas/iYNrP6pg5CDtV6rpgeuKgk.apk
 
 APK checksum:
 
 ```text
-1d0051c268fc580c911a6436f6c81fb490dd94c57ac923ed861d21fde67a4d7d
+619e654c565c982ba767eecb86af6d43a8ea6aabbeba9b0716f1fdaa44912607
 ```
 
 ## Install On Android
@@ -90,4 +90,4 @@ Update the GitHub APK prompt:
 - Framework: Expo React Native
 - Platform: Android
 - Package name: `com.naren.scamshield`
-- Current APK: `dist/scam-shield-v0.1.0.apk`
+- Current APK: `dist/scam-shield-v0.2.0.apk`

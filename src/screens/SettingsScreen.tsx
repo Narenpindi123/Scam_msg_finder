@@ -40,9 +40,8 @@ export function SettingsScreen({ settings, onSave }: SettingsScreenProps) {
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <Section title="Privacy model">
         <Text style={styles.body}>
-          Scam Shield analyzes messages locally in this MVP. A production AI version should call
-          your backend server, and that backend should call the AI provider with your protected API
-          key.
+          Scam Shield analyzes messages locally by default. A production AI version should call your
+          backend server, with provider keys kept off the phone.
         </Text>
       </Section>
 
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm
   },
   input: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderColor: colors.border,
     borderRadius: 8,
     borderWidth: 1,
@@ -135,7 +134,7 @@ const styles = StyleSheet.create({
     marginTop: 2
   },
   code: {
-    backgroundColor: "#101820",
+    backgroundColor: colors.text,
     borderRadius: 8,
     color: "#ECF2F8",
     fontSize: 12,

@@ -39,9 +39,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 8,
     justifyContent: "center",
-    minHeight: 48,
+    minHeight: 46,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md
+    paddingVertical: spacing.sm
   },
   primary: {
     backgroundColor: colors.primary
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800"
   },
   secondaryText: {

@@ -16,7 +16,10 @@ export function HistoryScreen({ history, onClear, onOpen }: HistoryScreenProps) 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerRow}>
-        <Text style={styles.screenTitle}>Recent scans</Text>
+        <View>
+          <Text style={styles.screenTitle}>History</Text>
+          <Text style={styles.screenSubtitle}>{history.length} saved scans</Text>
+        </View>
         {history.length > 0 ? <Button label="Clear" onPress={onClear} variant="danger" /> : null}
       </View>
 
@@ -67,9 +70,14 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     color: colors.text,
-    fontSize: 20,
-    fontWeight: "900",
+    fontSize: 19,
+    fontWeight: "800",
     letterSpacing: 0
+  },
+  screenSubtitle: {
+    color: colors.muted,
+    fontSize: 13,
+    marginTop: 2
   },
   emptyTitle: {
     color: colors.text,
@@ -86,8 +94,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 8,
     borderWidth: 1,
-    marginBottom: spacing.md,
-    padding: spacing.lg
+    marginBottom: spacing.sm,
+    padding: spacing.md
   },
   historyHeader: {
     alignItems: "center",
@@ -102,7 +110,7 @@ const styles = StyleSheet.create({
   },
   category: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
     marginBottom: spacing.xs
   },

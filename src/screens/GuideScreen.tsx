@@ -56,7 +56,7 @@ const resources = [
 export function GuideScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.screenTitle}>Safety guide</Text>
+      <Text style={styles.screenTitle}>Guide</Text>
 
       <Section title="Fast rule">
         <Text style={styles.body}>
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     color: colors.text,
-    fontSize: 20,
-    fontWeight: "900",
+    fontSize: 19,
+    fontWeight: "800",
     letterSpacing: 0,
     marginBottom: spacing.md
   },
@@ -127,8 +127,8 @@ const styles = StyleSheet.create({
   playbook: {
     borderBottomColor: colors.border,
     borderBottomWidth: 1,
-    marginBottom: spacing.lg,
-    paddingBottom: spacing.lg
+    marginBottom: spacing.md,
+    paddingBottom: spacing.md
   },
   playbookTitle: {
     color: colors.text,
@@ -147,10 +147,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 12,
     fontWeight: "900",
-    height: 22,
-    lineHeight: 22,
+    height: 21,
+    lineHeight: 21,
     textAlign: "center",
-    width: 22
+    width: 21
   },
   stepText: {
     color: colors.text,
