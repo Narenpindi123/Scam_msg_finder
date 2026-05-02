@@ -14,6 +14,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import { AppUpdateBanner } from "./src/components/AppUpdateBanner";
 import { AnalyzeScreen } from "./src/screens/AnalyzeScreen";
+import { CURRENT_APP_VERSION } from "./src/config/appUpdate";
 import { GuideScreen } from "./src/screens/GuideScreen";
 import { HistoryScreen } from "./src/screens/HistoryScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
@@ -113,6 +114,22 @@ export default function App() {
     setSettings(next);
   }, []);
 
+  const handleManualUpdateCheck = useCallback(async () => {
+    try {
+      const update = await checkForAppUpdate();
+
+      if (update) {
+        setAvailableUpdate(update);
+        Alert.alert("Update available", `Version ${update.latestVersion} is ready to download.`);
+        return;
+      }
+
+      Alert.alert("Scam Shield is current", `You are running version ${CURRENT_APP_VERSION}.`);
+    } catch {
+      Alert.alert("Update check failed", "Check your connection and try again.");
+    }
+  }, []);
+
   const handleShareReport = useCallback(async () => {
     if (!result) {
       return;
@@ -133,7 +150,13 @@ export default function App() {
     }
 
     if (activeTab === "settings") {
-      return <SettingsScreen settings={settings} onSave={handleSaveSettings} />;
+      return (
+        <SettingsScreen
+          onCheckForUpdate={handleManualUpdateCheck}
+          settings={settings}
+          onSave={handleSaveSettings}
+        />
+      );
     }
 
     return (
@@ -153,6 +176,7 @@ export default function App() {
     activeTab,
     handleAnalyze,
     handleClearHistory,
+    handleManualUpdateCheck,
     handleReopen,
     handleSaveSettings,
     handleShareReport,

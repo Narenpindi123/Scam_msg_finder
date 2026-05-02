@@ -15,13 +15,15 @@ import type { AppSettings } from "../services/storage";
 import { colors, spacing } from "../theme/theme";
 
 type SettingsScreenProps = {
+  onCheckForUpdate: () => Promise<void>;
   settings: AppSettings;
   onSave: (settings: AppSettings) => Promise<void>;
 };
 
-export function SettingsScreen({ settings, onSave }: SettingsScreenProps) {
+export function SettingsScreen({ onCheckForUpdate, settings, onSave }: SettingsScreenProps) {
   const [backendEndpoint, setBackendEndpoint] = useState(settings.backendEndpoint);
   const [backendReady, setBackendReady] = useState(settings.analysisMode === "backend-ready");
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
 
   useEffect(() => {
     setBackendEndpoint(settings.backendEndpoint);
@@ -36,6 +38,16 @@ export function SettingsScreen({ settings, onSave }: SettingsScreenProps) {
     Alert.alert("Settings saved", "Scam Shield will continue using local analysis in this MVP.");
   };
 
+  const handleCheckForUpdate = async () => {
+    setCheckingUpdate(true);
+
+    try {
+      await onCheckForUpdate();
+    } finally {
+      setCheckingUpdate(false);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <Section title="Privacy model">
@@ -43,6 +55,20 @@ export function SettingsScreen({ settings, onSave }: SettingsScreenProps) {
           Scam Shield analyzes messages locally by default. A production AI version should call your
           backend server, with provider keys kept off the phone.
         </Text>
+      </Section>
+
+      <Section title="App update">
+        <Text style={styles.body}>
+          Check GitHub for the latest APK when you want to test update prompts or install a newer
+          native build.
+        </Text>
+        <Button
+          disabled={checkingUpdate}
+          label={checkingUpdate ? "Checking..." : "Check for update"}
+          onPress={handleCheckForUpdate}
+          style={styles.updateButton}
+          variant="secondary"
+        />
       </Section>
 
       <Section title="Backend endpoint">
@@ -95,6 +121,9 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 14,
     lineHeight: 21
+  },
+  updateButton: {
+    marginTop: spacing.md
   },
   label: {
     color: colors.text,
