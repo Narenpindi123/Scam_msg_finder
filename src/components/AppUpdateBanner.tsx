@@ -2,7 +2,7 @@ import { Alert, Linking, StyleSheet, Text, View } from "react-native";
 
 import { Button } from "./Button";
 import type { AvailableAppUpdate } from "../services/appUpdate";
-import { colors, shadows, spacing } from "../theme/theme";
+import { colors, radii, shadows, spacing } from "../theme/theme";
 
 type AppUpdateBannerProps = {
   onDismiss: () => void;
@@ -23,15 +23,18 @@ export function AppUpdateBanner({ onDismiss, update }: AppUpdateBannerProps) {
 
   return (
     <View style={styles.banner}>
-      <View style={styles.copy}>
-        <Text style={styles.title}>{update.title}</Text>
-        <Text style={styles.body}>
-          {update.message} Version {update.latestVersion} is ready.
-        </Text>
-      </View>
-      <View style={styles.actions}>
-        <Button label="Download APK" onPress={handleDownload} style={styles.primaryAction} />
-        <Button label="Later" onPress={onDismiss} style={styles.secondaryAction} variant="secondary" />
+      <View style={styles.indicator} />
+      <View style={styles.inner}>
+        <View style={styles.copy}>
+          <Text style={styles.title}>⬆  {update.title}</Text>
+          <Text style={styles.body}>
+            {update.message} v{update.latestVersion} is ready.
+          </Text>
+        </View>
+        <View style={styles.actions}>
+          <Button label="Download" onPress={handleDownload} style={styles.primaryAction} />
+          <Button label="Later" onPress={onDismiss} style={styles.secondaryAction} variant="secondary" />
+        </View>
       </View>
     </View>
   );
@@ -40,27 +43,36 @@ export function AppUpdateBanner({ onDismiss, update }: AppUpdateBannerProps) {
 const styles = StyleSheet.create({
   banner: {
     backgroundColor: colors.warningSoft,
-    borderColor: colors.warning,
-    borderRadius: 8,
+    borderColor: colors.warningBorder,
+    borderRadius: radii.md,
     borderWidth: 1,
-    gap: spacing.md,
+    flexDirection: "row",
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
-    padding: spacing.md,
-    ...shadows.card
+    overflow: "hidden",
+    ...shadows.sm
+  },
+  indicator: {
+    backgroundColor: colors.warning,
+    width: 4
+  },
+  inner: {
+    flex: 1,
+    gap: spacing.md,
+    padding: spacing.md
   },
   copy: {
     gap: spacing.xs
   },
   title: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800"
   },
   body: {
     color: colors.muted,
     fontSize: 13,
-    lineHeight: 19
+    lineHeight: 18
   },
   actions: {
     flexDirection: "row",
@@ -68,11 +80,10 @@ const styles = StyleSheet.create({
   },
   primaryAction: {
     flex: 1,
-    minHeight: 44
+    minHeight: 40
   },
   secondaryAction: {
-    flex: 0.55,
-    minHeight: 44
+    flex: 0.6,
+    minHeight: 40
   }
 });
-

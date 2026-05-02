@@ -29,15 +29,15 @@ import {
   type AppSettings,
   type HistoryItem
 } from "./src/services/storage";
-import { colors, spacing } from "./src/theme/theme";
+import { colors, radii, shadows, spacing } from "./src/theme/theme";
 
 type TabKey = "analyze" | "history" | "guide" | "settings";
 
 const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
-  { key: "analyze", label: "Analyze", icon: "Scan" },
-  { key: "history", label: "History", icon: "Log" },
-  { key: "guide", label: "Guide", icon: "Help" },
-  { key: "settings", label: "Settings", icon: "Gear" }
+  { key: "analyze", label: "Analyze", icon: "🛡" },
+  { key: "history", label: "History", icon: "🕐" },
+  { key: "guide", label: "Guide", icon: "📖" },
+  { key: "settings", label: "Settings", icon: "⚙" }
 ];
 
 export default function App() {
@@ -195,12 +195,18 @@ export default function App() {
           style={styles.shell}
         >
           <View style={styles.header}>
-            <View>
-              <Text style={styles.title}>Scam Shield</Text>
-              <Text style={styles.subtitle}>Minimal message risk check</Text>
+            <View style={styles.headerBrand}>
+              <View style={styles.logoMark}>
+                <Text style={styles.logoEmoji}>🛡</Text>
+              </View>
+              <View>
+                <Text style={styles.title}>Scam Shield</Text>
+                <Text style={styles.subtitle}>On-device message scanner</Text>
+              </View>
             </View>
             <View style={styles.modePill}>
-              <Text style={styles.modePillText}>v2 Local</Text>
+              <View style={styles.modeDot} />
+              <Text style={styles.modePillText}>Local · v2</Text>
             </View>
           </View>
 
@@ -224,8 +230,8 @@ export default function App() {
                   onPress={() => setActiveTab(tab.key)}
                   style={[styles.tabButton, selected && styles.tabButtonActive]}
                 >
-                  <Text style={[styles.tabIcon, selected && styles.tabTextActive]}>{tab.icon}</Text>
-                  <Text style={[styles.tabLabel, selected && styles.tabTextActive]}>{tab.label}</Text>
+                  <Text style={styles.tabIcon}>{tab.icon}</Text>
+                  <Text style={[styles.tabLabel, selected && styles.tabLabelActive]}>{tab.label}</Text>
                 </Pressable>
               );
             })}
@@ -274,80 +280,110 @@ function formatReport(result: AnalysisResult, message: string): string {
 
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: colors.background,
+    flex: 1
   },
   shell: {
-    flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: colors.background,
+    flex: 1
   },
   header: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingBottom: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm
+    paddingTop: spacing.md
+  },
+  headerBrand: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  logoMark: {
+    alignItems: "center",
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primaryBorder,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    height: 38,
+    justifyContent: "center",
+    width: 38,
+    ...shadows.sm
+  },
+  logoEmoji: {
+    fontSize: 20
   },
   title: {
     color: colors.text,
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "800",
-    letterSpacing: 0
+    letterSpacing: -0.3
   },
   subtitle: {
     color: colors.muted,
-    fontSize: 13,
-    marginTop: 2
+    fontSize: 11,
+    fontWeight: "500",
+    marginTop: 1
   },
   modePill: {
+    alignItems: "center",
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 6,
+    borderRadius: radii.pill,
     borderWidth: 1,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6
+    flexDirection: "row",
+    gap: 5,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 5,
+    ...shadows.sm
+  },
+  modeDot: {
+    backgroundColor: colors.success,
+    borderRadius: radii.pill,
+    height: 7,
+    width: 7
   },
   modePillText: {
-    color: colors.text,
-    fontSize: 12,
+    color: colors.textSecondary,
+    fontSize: 11,
     fontWeight: "700"
   },
   content: {
     flex: 1
   },
   tabBar: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
+    borderTopColor: colors.border,
+    borderTopWidth: 1,
     flexDirection: "row",
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md
+    paddingBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.sm
   },
   tabButton: {
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: radii.md,
     flex: 1,
-    gap: 2,
+    gap: 3,
     justifyContent: "center",
-    minHeight: 54
+    minHeight: 54,
+    paddingVertical: spacing.sm
   },
   tabButtonActive: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderWidth: 1
+    backgroundColor: colors.primarySoft
   },
   tabIcon: {
-    color: colors.muted,
-    fontSize: 11,
-    fontWeight: "900",
-    textTransform: "uppercase"
+    fontSize: 19
   },
   tabLabel: {
     color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700"
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 0.2
   },
-  tabTextActive: {
-    color: colors.primary
+  tabLabelActive: {
+    color: colors.primary,
+    fontWeight: "800"
   }
 });

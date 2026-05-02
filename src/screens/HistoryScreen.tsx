@@ -4,7 +4,7 @@ import { Button } from "../components/Button";
 import { RiskBadge } from "../components/RiskBadge";
 import { Section } from "../components/Section";
 import type { HistoryItem } from "../services/storage";
-import { colors, spacing } from "../theme/theme";
+import { colors, radii, shadows, spacing } from "../theme/theme";
 
 type HistoryScreenProps = {
   history: HistoryItem[];
@@ -12,35 +12,63 @@ type HistoryScreenProps = {
   onOpen: (item: HistoryItem) => void;
 };
 
+const riskAccent = {
+  Low: colors.success,
+  Medium: colors.warning,
+  High: colors.danger,
+  Critical: colors.critical
+};
+
+const riskAccentBg = {
+  Low: colors.successSoft,
+  Medium: colors.warningSoft,
+  High: colors.dangerSoft,
+  Critical: colors.criticalSoft
+};
+
 export function HistoryScreen({ history, onClear, onOpen }: HistoryScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.headerRow}>
         <View>
-          <Text style={styles.screenTitle}>History</Text>
-          <Text style={styles.screenSubtitle}>{history.length} saved scans</Text>
+          <Text style={styles.screenTitle}>Scan History</Text>
+          <Text style={styles.screenSubtitle}>
+            {history.length === 0 ? "No scans yet" : `${history.length} saved on this device`}
+          </Text>
         </View>
-        {history.length > 0 ? <Button label="Clear" onPress={onClear} variant="danger" /> : null}
+        {history.length > 0 ? <Button label="Clear all" onPress={onClear} variant="danger" /> : null}
       </View>
 
       {history.length === 0 ? (
         <Section>
-          <Text style={styles.emptyTitle}>No saved scans</Text>
-          <Text style={styles.emptyText}>Analyze a message and it will be saved on this device.</Text>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>🕐</Text>
+            <Text style={styles.emptyTitle}>No scans yet</Text>
+            <Text style={styles.emptyText}>
+              Each message you analyze is saved here so you can review past results.
+            </Text>
+          </View>
         </Section>
       ) : (
         history.map((item) => (
-          <Pressable key={item.id} onPress={() => onOpen(item)} style={styles.historyItem}>
-            <View style={styles.historyHeader}>
-              <RiskBadge level={item.result.riskLevel} score={item.result.score} />
-              <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
+          <Pressable
+            key={item.id}
+            onPress={() => onOpen(item)}
+            style={({ pressed }) => [styles.historyItem, pressed && styles.historyItemPressed]}
+          >
+            <View style={[styles.riskStripe, { backgroundColor: riskAccent[item.result.riskLevel] }]} />
+            <View style={[styles.historyInner, { backgroundColor: riskAccentBg[item.result.riskLevel] }]}>
+              <View style={styles.historyHeader}>
+                <RiskBadge level={item.result.riskLevel} score={item.result.score} />
+                <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
+              </View>
+              <Text numberOfLines={1} style={styles.category}>
+                {item.result.category}
+              </Text>
+              <Text numberOfLines={2} style={styles.preview}>
+                {item.message}
+              </Text>
             </View>
-            <Text numberOfLines={1} style={styles.category}>
-              {item.result.category}
-            </Text>
-            <Text numberOfLines={3} style={styles.preview}>
-              {item.message}
-            </Text>
           </Pressable>
         ))
       )}
@@ -59,64 +87,85 @@ function formatDate(value: string): string {
 
 const styles = StyleSheet.create({
   container: {
+    paddingBottom: spacing.xl,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl
+    paddingTop: spacing.sm
   },
   headerRow: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: spacing.md
+    marginBottom: spacing.lg
   },
   screenTitle: {
     color: colors.text,
     fontSize: 19,
     fontWeight: "800",
-    letterSpacing: 0
+    letterSpacing: -0.2
   },
   screenSubtitle: {
     color: colors.muted,
-    fontSize: 13,
+    fontSize: 12,
     marginTop: 2
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: spacing.lg
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md
   },
   emptyTitle: {
     color: colors.text,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "800",
-    marginBottom: spacing.sm
+    marginBottom: spacing.sm,
+    textAlign: "center"
   },
   emptyText: {
     color: colors.muted,
-    fontSize: 14
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center"
   },
   historyItem: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: radii.md,
+    flexDirection: "row",
     marginBottom: spacing.sm,
+    overflow: "hidden",
+    ...shadows.card
+  },
+  historyItemPressed: {
+    opacity: 0.82
+  },
+  riskStripe: {
+    width: 5
+  },
+  historyInner: {
+    flex: 1,
     padding: spacing.md
   },
   historyHeader: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: spacing.md
+    marginBottom: spacing.sm
   },
   dateText: {
     color: colors.muted,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700"
   },
   category: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
     marginBottom: spacing.xs
   },
   preview: {
     color: colors.muted,
-    fontSize: 14,
-    lineHeight: 20
+    fontSize: 13,
+    lineHeight: 19
   }
 });

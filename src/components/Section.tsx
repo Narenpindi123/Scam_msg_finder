@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, shadows, spacing } from "../theme/theme";
+import { colors, radii, shadows, spacing } from "../theme/theme";
 
 type SectionProps = {
   title?: string;
@@ -11,7 +11,11 @@ type SectionProps = {
 export function Section({ title, children }: SectionProps) {
   return (
     <View style={styles.section}>
-      {title ? <Text style={styles.title}>{title}</Text> : null}
+      {title ? (
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>{title.toUpperCase()}</Text>
+        </View>
+      ) : null}
       {children}
     </View>
   );
@@ -20,17 +24,21 @@ export function Section({ title, children }: SectionProps) {
 const styles = StyleSheet.create({
   section: {
     backgroundColor: colors.surface,
-    borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginBottom: spacing.sm,
-    padding: spacing.md,
+    borderRadius: radii.md,
+    marginBottom: spacing.md,
+    padding: spacing.lg,
     ...shadows.card
   },
+  titleRow: {
+    borderBottomColor: colors.borderFaint,
+    borderBottomWidth: 1,
+    marginBottom: spacing.md,
+    paddingBottom: spacing.sm
+  },
   title: {
-    color: colors.text,
-    fontSize: 14,
+    color: colors.muted,
+    fontSize: 10,
     fontWeight: "800",
-    marginBottom: spacing.sm
+    letterSpacing: 1.4
   }
 });

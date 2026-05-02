@@ -2,11 +2,12 @@ import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Button } from "../components/Button";
 import { Section } from "../components/Section";
-import { colors, spacing } from "../theme/theme";
+import { colors, radii, spacing } from "../theme/theme";
 
 const playbooks = [
   {
     title: "Clicked a suspicious link",
+    icon: "🔗",
     steps: [
       "Close the page and do not enter codes, passwords, or payment details.",
       "Change the affected password from the official app or a typed website.",
@@ -15,6 +16,7 @@ const playbooks = [
   },
   {
     title: "Shared card or bank info",
+    icon: "💳",
     steps: [
       "Call the bank using the number on the card or the official website.",
       "Ask about card replacement, account locks, and recent pending activity.",
@@ -23,6 +25,7 @@ const playbooks = [
   },
   {
     title: "Sent a password or MFA code",
+    icon: "🔑",
     steps: [
       "Change the password from a trusted device.",
       "Remove unfamiliar devices, sessions, recovery emails, or forwarding rules.",
@@ -31,6 +34,7 @@ const playbooks = [
   },
   {
     title: "Installed remote access software",
+    icon: "🖥",
     steps: [
       "Disconnect from the internet if someone still has access.",
       "Uninstall the remote access app and revoke permissions.",
@@ -40,38 +44,46 @@ const playbooks = [
 ];
 
 const scamPatterns = [
-  "Urgency: threats, deadlines, account locks, or legal consequences.",
-  "Payment pressure: gift cards, wire transfers, crypto, Zelle-only requests, or deposits.",
-  "Impersonation: banks, carriers, marketplaces, employers, tech support, or family members.",
-  "Channel switching: moving to Telegram, WhatsApp, Signal, or an unverified phone number.",
-  "Credential capture: requests for passwords, OTP codes, MFA codes, SSN, DOB, or card data."
+  { icon: "⏰", text: "Urgency: threats, deadlines, account locks, or legal consequences." },
+  { icon: "💸", text: "Payment pressure: gift cards, wire transfers, crypto, Zelle-only requests." },
+  { icon: "🎭", text: "Impersonation: banks, carriers, marketplaces, employers, or family." },
+  { icon: "📱", text: "Channel switching: moving to Telegram, WhatsApp, or unverified numbers." },
+  { icon: "🔐", text: "Credential capture: passwords, OTP codes, MFA codes, SSN, card data." }
 ];
 
 const resources = [
-  { label: "Report fraud", url: "https://reportfraud.ftc.gov/" },
-  { label: "Identity theft help", url: "https://www.identitytheft.gov/" },
-  { label: "FBI IC3 cybercrime report", url: "https://www.ic3.gov/" }
+  { label: "🏛  Report fraud — FTC", url: "https://reportfraud.ftc.gov/" },
+  { label: "🪪  Identity theft help — IdentityTheft.gov", url: "https://www.identitytheft.gov/" },
+  { label: "🌐  FBI cybercrime report — IC3", url: "https://www.ic3.gov/" }
 ];
 
 export function GuideScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.screenTitle}>Guide</Text>
+      <Text style={styles.screenTitle}>Safety Guide</Text>
 
       <Section title="Fast rule">
-        <Text style={styles.body}>
-          Treat unexpected requests as untrusted until verified through a channel you already know:
-          the official app, a typed website, or a number from a card, bill, or verified account.
-        </Text>
+        <View style={styles.fastRuleBox}>
+          <Text style={styles.fastRuleEmoji}>💡</Text>
+          <Text style={styles.fastRuleText}>
+            Treat unexpected requests as untrusted until verified through a channel you already know:
+            the official app, a typed website, or a number from your card or bill.
+          </Text>
+        </View>
       </Section>
 
       <Section title="If something happened">
-        {playbooks.map((playbook) => (
-          <View key={playbook.title} style={styles.playbook}>
-            <Text style={styles.playbookTitle}>{playbook.title}</Text>
+        {playbooks.map((playbook, pIndex) => (
+          <View key={playbook.title} style={[styles.playbook, pIndex === playbooks.length - 1 && styles.playbookLast]}>
+            <View style={styles.playbookHeader}>
+              <Text style={styles.playbookIcon}>{playbook.icon}</Text>
+              <Text style={styles.playbookTitle}>{playbook.title}</Text>
+            </View>
             {playbook.steps.map((step, index) => (
               <View key={step} style={styles.stepRow}>
-                <Text style={styles.stepNumber}>{index + 1}</Text>
+                <View style={styles.stepNumberWrap}>
+                  <Text style={styles.stepNumber}>{index + 1}</Text>
+                </View>
                 <Text style={styles.stepText}>{step}</Text>
               </View>
             ))}
@@ -81,9 +93,9 @@ export function GuideScreen() {
 
       <Section title="Common scam signals">
         {scamPatterns.map((pattern) => (
-          <View key={pattern} style={styles.signalRow}>
-            <View style={styles.signalDot} />
-            <Text style={styles.signalText}>{pattern}</Text>
+          <View key={pattern.text} style={styles.signalRow}>
+            <Text style={styles.signalIcon}>{pattern.icon}</Text>
+            <Text style={styles.signalText}>{pattern.text}</Text>
           </View>
         ))}
       </Section>
@@ -109,66 +121,99 @@ export function GuideScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    paddingBottom: spacing.xl,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl
+    paddingTop: spacing.sm
   },
   screenTitle: {
     color: colors.text,
     fontSize: 19,
     fontWeight: "800",
-    letterSpacing: 0,
+    letterSpacing: -0.2,
     marginBottom: spacing.md
   },
-  body: {
-    color: colors.muted,
+  fastRuleBox: {
+    alignItems: "flex-start",
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primaryBorder,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: spacing.sm,
+    padding: spacing.md
+  },
+  fastRuleEmoji: {
+    fontSize: 18,
+    marginTop: 1
+  },
+  fastRuleText: {
+    color: colors.textSecondary,
+    flex: 1,
     fontSize: 14,
     lineHeight: 21
   },
   playbook: {
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.borderFaint,
     borderBottomWidth: 1,
-    marginBottom: spacing.md,
-    paddingBottom: spacing.md
+    marginBottom: spacing.lg,
+    paddingBottom: spacing.lg
+  },
+  playbookLast: {
+    borderBottomWidth: 0,
+    marginBottom: 0,
+    paddingBottom: 0
+  },
+  playbookHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.md
+  },
+  playbookIcon: {
+    fontSize: 18
   },
   playbookTitle: {
     color: colors.text,
+    flex: 1,
     fontSize: 15,
-    fontWeight: "900",
-    marginBottom: spacing.md
+    fontWeight: "900"
   },
   stepRow: {
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: spacing.sm,
     marginBottom: spacing.sm
   },
-  stepNumber: {
+  stepNumberWrap: {
+    alignItems: "center",
     backgroundColor: colors.primarySoft,
-    borderRadius: 6,
+    borderColor: colors.primaryBorder,
+    borderRadius: radii.sm - 2,
+    borderWidth: 1,
+    height: 22,
+    justifyContent: "center",
+    width: 22
+  },
+  stepNumber: {
     color: colors.primary,
     fontSize: 12,
-    fontWeight: "900",
-    height: 21,
-    lineHeight: 21,
-    textAlign: "center",
-    width: 21
+    fontWeight: "900"
   },
   stepText: {
-    color: colors.text,
+    color: colors.textSecondary,
     flex: 1,
     fontSize: 14,
     lineHeight: 20
   },
   signalRow: {
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: spacing.sm,
     marginBottom: spacing.md
   },
-  signalDot: {
-    backgroundColor: colors.warning,
-    borderRadius: 5,
-    height: 10,
-    marginTop: 5,
-    width: 10
+  signalIcon: {
+    fontSize: 16,
+    marginTop: 1
   },
   signalText: {
     color: colors.text,
@@ -176,8 +221,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20
   },
+  body: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 21,
+    marginBottom: spacing.md
+  },
   resourceList: {
-    gap: spacing.sm,
-    marginTop: spacing.md
+    gap: spacing.sm
   }
 });

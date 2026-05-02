@@ -12,7 +12,7 @@ import {
 import { Button } from "../components/Button";
 import { Section } from "../components/Section";
 import type { AppSettings } from "../services/storage";
-import { colors, spacing } from "../theme/theme";
+import { colors, radii, spacing } from "../theme/theme";
 
 type SettingsScreenProps = {
   onCheckForUpdate: () => Promise<void>;
@@ -50,21 +50,27 @@ export function SettingsScreen({ onCheckForUpdate, settings, onSave }: SettingsS
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <Text style={styles.screenTitle}>Settings</Text>
+
       <Section title="Privacy model">
-        <Text style={styles.body}>
-          Scam Shield analyzes messages locally by default. A production AI version should call your
-          backend server, with provider keys kept off the phone.
-        </Text>
+        <View style={styles.privacyBox}>
+          <Text style={styles.privacyIcon}>🔒</Text>
+          <View style={styles.privacyCopy}>
+            <Text style={styles.privacyTitle}>Local-only analysis</Text>
+            <Text style={styles.body}>
+              Scam Shield analyzes messages on this device. Nothing is sent to external servers unless you enable a backend.
+            </Text>
+          </View>
+        </View>
       </Section>
 
       <Section title="App update">
         <Text style={styles.body}>
-          Check GitHub for the latest APK when you want to test update prompts or install a newer
-          native build.
+          Check GitHub for the latest APK when you want to test update prompts or install a newer native build.
         </Text>
         <Button
           disabled={checkingUpdate}
-          label={checkingUpdate ? "Checking..." : "Check for update"}
+          label={checkingUpdate ? "Checking…" : "Check for update"}
           onPress={handleCheckForUpdate}
           style={styles.updateButton}
           variant="secondary"
@@ -79,7 +85,7 @@ export function SettingsScreen({ onCheckForUpdate, settings, onSave }: SettingsS
           keyboardType="url"
           onChangeText={setBackendEndpoint}
           placeholder="https://api.example.com/analyze"
-          placeholderTextColor={colors.muted}
+          placeholderTextColor={colors.mutedLight}
           style={styles.input}
           value={backendEndpoint}
         />
@@ -87,12 +93,12 @@ export function SettingsScreen({ onCheckForUpdate, settings, onSave }: SettingsS
         <View style={styles.switchRow}>
           <View style={styles.switchText}>
             <Text style={styles.switchTitle}>Backend ready</Text>
-            <Text style={styles.switchDetail}>Use this after a secure server is deployed.</Text>
+            <Text style={styles.switchDetail}>Enable after a secure server is deployed.</Text>
           </View>
           <Switch
             onValueChange={setBackendReady}
             thumbColor={backendReady ? colors.primary : "#FFFFFF"}
-            trackColor={{ false: colors.border, true: colors.primarySoft }}
+            trackColor={{ false: colors.border, true: colors.primaryBorder }}
             value={backendReady}
           />
         </View>
@@ -101,12 +107,14 @@ export function SettingsScreen({ onCheckForUpdate, settings, onSave }: SettingsS
       </Section>
 
       <Section title="Backend contract">
-        <Text style={styles.code}>
-          POST /analyze{"\n"}
-          {"{"}"message": "suspicious text"{"}"}{"\n\n"}
-          returns{"\n"}
-          {"{"}"riskLevel": "High", "score": 78, "summary": "...", "signals": []{"}"}
-        </Text>
+        <Text style={styles.codeLabel}>Expected request / response shape</Text>
+        <View style={styles.codeBlock}>
+          <Text style={styles.codeText}>
+            POST /analyze{"\n"}
+            {"{"}"message": "suspicious text"{"}"}{"\n\n"}
+            {"{"}"riskLevel": "High",{"\n"} "score": 78,{"\n"} "summary": "...",{"\n"} "signals": []{"}"}
+          </Text>
+        </View>
       </Section>
     </ScrollView>
   );
@@ -114,8 +122,34 @@ export function SettingsScreen({ onCheckForUpdate, settings, onSave }: SettingsS
 
 const styles = StyleSheet.create({
   container: {
+    paddingBottom: spacing.xl,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl
+    paddingTop: spacing.sm
+  },
+  screenTitle: {
+    color: colors.text,
+    fontSize: 19,
+    fontWeight: "800",
+    letterSpacing: -0.2,
+    marginBottom: spacing.md
+  },
+  privacyBox: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  privacyIcon: {
+    fontSize: 22,
+    marginTop: 2
+  },
+  privacyCopy: {
+    flex: 1,
+    gap: spacing.xs
+  },
+  privacyTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: "800"
   },
   body: {
     color: colors.muted,
@@ -126,16 +160,18 @@ const styles = StyleSheet.create({
     marginTop: spacing.md
   },
   label: {
-    color: colors.text,
-    fontSize: 13,
+    color: colors.textSecondary,
+    fontSize: 12,
     fontWeight: "800",
-    marginBottom: spacing.sm
+    letterSpacing: 0.6,
+    marginBottom: spacing.sm,
+    textTransform: "uppercase"
   },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceAlt,
     borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: radii.sm,
+    borderWidth: 1.5,
     color: colors.text,
     fontSize: 14,
     minHeight: 48,
@@ -162,12 +198,20 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginTop: 2
   },
-  code: {
-    backgroundColor: colors.text,
-    borderRadius: 8,
-    color: "#ECF2F8",
+  codeLabel: {
+    color: colors.muted,
     fontSize: 12,
-    lineHeight: 18,
+    marginBottom: spacing.sm
+  },
+  codeBlock: {
+    backgroundColor: colors.text,
+    borderRadius: radii.sm,
     padding: spacing.md
+  },
+  codeText: {
+    color: "#B8D0EC",
+    fontFamily: "monospace",
+    fontSize: 12,
+    lineHeight: 19
   }
 });

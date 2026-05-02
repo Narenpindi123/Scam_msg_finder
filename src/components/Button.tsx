@@ -7,7 +7,7 @@ import {
   type ViewStyle
 } from "react-native";
 
-import { colors, spacing } from "../theme/theme";
+import { colors, radii, spacing } from "../theme/theme";
 
 type ButtonProps = Omit<PressableProps, "style"> & {
   label: string;
@@ -29,7 +29,9 @@ export function Button({ label, variant = "primary", style, disabled, ...props }
       ]}
       {...props}
     >
-      <Text style={[styles.text, variant !== "primary" && styles.secondaryText]}>{label}</Text>
+      <Text style={[styles.text, variant !== "primary" && styles.altText, variant === "danger" && styles.dangerText]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -37,11 +39,11 @@ export function Button({ label, variant = "primary", style, disabled, ...props }
 const styles = StyleSheet.create({
   base: {
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: radii.sm + 2,
     justifyContent: "center",
-    minHeight: 46,
+    minHeight: 48,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm
+    paddingVertical: spacing.sm + 2
   },
   primary: {
     backgroundColor: colors.primary
@@ -49,25 +51,29 @@ const styles = StyleSheet.create({
   secondary: {
     backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderWidth: 1
+    borderWidth: 1.5
   },
   danger: {
     backgroundColor: colors.dangerSoft,
-    borderColor: colors.danger,
-    borderWidth: 1
+    borderColor: colors.dangerBorder,
+    borderWidth: 1.5
   },
   disabled: {
-    opacity: 0.5
+    opacity: 0.45
   },
   pressed: {
-    opacity: 0.82
+    opacity: 0.78
   },
   text: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "700",
+    letterSpacing: 0.1
   },
-  secondaryText: {
+  altText: {
     color: colors.text
+  },
+  dangerText: {
+    color: colors.danger
   }
 });

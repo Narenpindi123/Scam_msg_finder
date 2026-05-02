@@ -10,7 +10,7 @@ import { Button } from "../components/Button";
 import { RiskBadge } from "../components/RiskBadge";
 import { Section } from "../components/Section";
 import type { AnalysisResult, Signal } from "../services/analyzer";
-import { colors, spacing } from "../theme/theme";
+import { colors, radii, spacing } from "../theme/theme";
 
 type AnalyzeScreenProps = {
   message: string;
@@ -40,8 +40,8 @@ export function AnalyzeScreen({
           multiline
           numberOfLines={8}
           onChangeText={onChangeMessage}
-          placeholder="Paste a suspicious text, email, DM, or marketplace message."
-          placeholderTextColor={colors.muted}
+          placeholder="Paste a suspicious text, email, DM, or marketplace message…"
+          placeholderTextColor={colors.mutedLight}
           style={styles.input}
           textAlignVertical="top"
           value={message}
@@ -60,11 +60,22 @@ export function AnalyzeScreen({
 function EmptyResult() {
   return (
     <Section>
-      <Text style={styles.emptyTitle}>Local scan, clear result</Text>
-      <Text style={styles.emptyText}>
-        Scam Shield checks urgency, payment pressure, credential requests, suspicious links, and
-        impersonation patterns on this device.
-      </Text>
+      <View style={styles.emptyState}>
+        <View style={styles.emptyIconWrap}>
+          <Text style={styles.emptyIconEmoji}>🛡️</Text>
+        </View>
+        <Text style={styles.emptyTitle}>Ready to scan</Text>
+        <Text style={styles.emptyText}>
+          Paste any suspicious message above and tap Analyze. The check runs locally — nothing leaves your device.
+        </Text>
+        <View style={styles.chipRow}>
+          {["Urgency traps", "Payment pressure", "Fake links", "Impersonation"].map((tag) => (
+            <View key={tag} style={styles.chip}>
+              <Text style={styles.chipText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
     </Section>
   );
 }
@@ -99,9 +110,10 @@ function ResultPanel({
       {result.links.length > 0 ? (
         <Section title="Visible links">
           {result.links.map((link) => (
-            <Text key={link} style={styles.linkText}>
-              {link}
-            </Text>
+            <View key={link} style={styles.linkItem}>
+              <Text style={styles.linkIcon}>🔗</Text>
+              <Text style={styles.linkText}>{link}</Text>
+            </View>
           ))}
         </Section>
       ) : null}
@@ -120,7 +132,9 @@ function ResultPanel({
       <Section title="Response plan">
         {responsePlan.map((action, index) => (
           <View key={action} style={styles.planRow}>
-            <Text style={styles.planNumber}>{index + 1}</Text>
+            <View style={styles.planNumberWrap}>
+              <Text style={styles.planNumber}>{index + 1}</Text>
+            </View>
             <Text style={styles.actionText}>{action}</Text>
           </View>
         ))}
@@ -129,7 +143,7 @@ function ResultPanel({
       <Section title="Next actions">
         {result.recommendedActions.map((action) => (
           <View key={action} style={styles.actionRow}>
-            <Text style={styles.check}>OK</Text>
+            <Text style={styles.check}>✓</Text>
             <Text style={styles.actionText}>{action}</Text>
           </View>
         ))}
@@ -138,10 +152,21 @@ function ResultPanel({
   );
 }
 
+const severityBorderColor = {
+  info: colors.primary,
+  warning: colors.warning,
+  danger: colors.danger
+};
+
+const severityBg = {
+  info: colors.primarySoft,
+  warning: colors.warningSoft,
+  danger: colors.dangerSoft
+};
+
 function SignalRow({ signal }: { signal: Signal }) {
   return (
-    <View style={styles.signalRow}>
-      <View style={[styles.signalDot, styles[signal.severity]]} />
+    <View style={[styles.signalRow, { borderLeftColor: severityBorderColor[signal.severity], backgroundColor: severityBg[signal.severity] }]}>
       <View style={styles.signalBody}>
         <Text style={styles.signalLabel}>{signal.label}</Text>
         <Text style={styles.signalDetail}>{signal.detail}</Text>
@@ -153,17 +178,18 @@ function SignalRow({ signal }: { signal: Signal }) {
 
 const styles = StyleSheet.create({
   container: {
+    paddingBottom: spacing.xl,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl
+    paddingTop: spacing.sm
   },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceAlt,
     borderColor: colors.border,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: radii.sm,
+    borderWidth: 1.5,
     color: colors.text,
     fontSize: 15,
-    lineHeight: 21,
+    lineHeight: 22,
     minHeight: 176,
     padding: spacing.md
   },
@@ -175,33 +201,56 @@ const styles = StyleSheet.create({
   primaryAction: {
     flex: 1
   },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: spacing.lg
+  },
+  emptyIconWrap: {
+    alignItems: "center",
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primaryBorder,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    height: 68,
+    justifyContent: "center",
+    marginBottom: spacing.lg,
+    width: 68
+  },
+  emptyIconEmoji: {
+    fontSize: 32
+  },
   emptyTitle: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "800",
-    marginBottom: spacing.sm
+    marginBottom: spacing.sm,
+    textAlign: "center"
   },
   emptyText: {
     color: colors.muted,
     fontSize: 14,
-    lineHeight: 21
+    lineHeight: 21,
+    marginBottom: spacing.lg,
+    textAlign: "center"
   },
-  category: {
-    color: colors.text,
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "800",
-    letterSpacing: 0,
-    textAlign: "right"
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    justifyContent: "center"
   },
-  summary: {
+  chip: {
+    backgroundColor: colors.surfaceAlt,
+    borderColor: colors.border,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 5
+  },
+  chipText: {
     color: colors.muted,
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: spacing.sm
-  },
-  shareButton: {
-    marginTop: spacing.md
+    fontSize: 12,
+    fontWeight: "600"
   },
   resultHeader: {
     alignItems: "center",
@@ -209,73 +258,88 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     justifyContent: "space-between"
   },
+  category: {
+    color: colors.text,
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "800",
+    letterSpacing: -0.2,
+    textAlign: "right"
+  },
+  summary: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 21,
+    marginTop: spacing.md
+  },
+  shareButton: {
+    marginTop: spacing.md
+  },
   signalRow: {
-    flexDirection: "row",
-    gap: spacing.md,
-    marginBottom: spacing.md
-  },
-  signalDot: {
-    borderRadius: 5,
-    height: 10,
-    marginTop: 5,
-    width: 10
-  },
-  info: {
-    backgroundColor: colors.primary
-  },
-  warning: {
-    backgroundColor: colors.warning
-  },
-  danger: {
-    backgroundColor: colors.danger
+    borderLeftWidth: 3,
+    borderRadius: radii.sm,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2
   },
   signalBody: {
     flex: 1
   },
   signalLabel: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800"
   },
   signalDetail: {
     color: colors.muted,
     fontSize: 13,
-    lineHeight: 19,
+    lineHeight: 18,
     marginTop: 3
   },
   evidence: {
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.surface,
     borderColor: colors.border,
-    borderRadius: 6,
+    borderRadius: radii.sm - 2,
     borderWidth: 1,
-    color: colors.text,
+    color: colors.textSecondary,
     fontSize: 12,
     marginTop: spacing.sm,
     padding: spacing.sm
   },
-  linkText: {
+  linkItem: {
+    alignItems: "center",
     backgroundColor: colors.surfaceAlt,
     borderColor: colors.border,
-    borderRadius: 6,
+    borderRadius: radii.sm,
     borderWidth: 1,
-    color: colors.primary,
-    fontSize: 13,
+    flexDirection: "row",
+    gap: spacing.sm,
     marginBottom: spacing.sm,
     padding: spacing.sm
+  },
+  linkIcon: {
+    fontSize: 13
+  },
+  linkText: {
+    color: colors.primary,
+    flex: 1,
+    fontSize: 13
   },
   contactRow: {
     backgroundColor: colors.surfaceAlt,
     borderColor: colors.border,
-    borderRadius: 6,
+    borderRadius: radii.sm,
     borderWidth: 1,
     marginBottom: spacing.sm,
     padding: spacing.sm
   },
   contactLabel: {
     color: colors.muted,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
-    marginBottom: 2
+    letterSpacing: 0.6,
+    marginBottom: 2,
+    textTransform: "uppercase"
   },
   contactValue: {
     color: colors.text,
@@ -283,22 +347,28 @@ const styles = StyleSheet.create({
     fontWeight: "700"
   },
   planRow: {
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: spacing.sm,
     marginBottom: spacing.sm
   },
-  planNumber: {
+  planNumberWrap: {
+    alignItems: "center",
     backgroundColor: colors.primarySoft,
-    borderRadius: 6,
-    color: colors.primary,
-    fontSize: 12,
-    fontWeight: "900",
+    borderColor: colors.primaryBorder,
+    borderRadius: radii.sm - 2,
+    borderWidth: 1,
     height: 22,
-    lineHeight: 22,
-    textAlign: "center",
+    justifyContent: "center",
     width: 22
   },
+  planNumber: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "900"
+  },
   actionRow: {
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: spacing.sm,
     marginBottom: spacing.sm
