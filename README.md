@@ -1,68 +1,81 @@
-# Scam Shield Android
+# Scam Shield
 
-Android-first Expo React Native app for analyzing suspicious SMS, email, marketplace, delivery, job, banking, and social messages.
+Scam Shield is an Android app that helps users check suspicious text messages, emails, direct messages, marketplace messages, delivery notices, job offers, and banking alerts.
 
-## Download APK
+The app runs its scam check locally on the phone. Users can paste a message, review the risk score, see the red flags, and get simple next steps.
 
-Install the latest Android APK:
+## Download
 
-- GitHub: [dist/scam-shield-v0.1.0.apk](dist/scam-shield-v0.1.0.apk)
-- Expo artifact: https://expo.dev/artifacts/eas/6LwLToQMVQUjvJJCSomYPx.apk
+Download the APK from GitHub:
 
-SHA-256:
+[Download Scam Shield APK](https://github.com/Narenpindi123/Scam_msg_finder/raw/refs/heads/master/dist/scam-shield-v0.1.0.apk)
+
+Backup Expo download:
+
+https://expo.dev/artifacts/eas/6LwLToQMVQUjvJJCSomYPx.apk
+
+APK checksum:
 
 ```text
 90115b3b664392a7d9200348bc4db4fb7461eab3b9fd9a95561dc8e27febe306
 ```
 
-## What it does
+## Install On Android
 
-- Lets a user paste a suspicious message.
-- Scores likely scam risk locally with deterministic rules.
-- Highlights red flags and suspicious links.
-- Extracts visible phone numbers and email addresses from suspicious messages.
-- Builds a shareable plain-English scan report.
-- Shows a response plan for what to do next.
-- Gives plain-English next actions.
-- Saves scan history on-device.
-- Includes a Safety Guide tab with common scam signals, incident playbooks, and reporting resources.
-- Keeps AI/API keys out of the mobile app. A future backend endpoint can be configured in Settings.
+1. Download the APK on your Android phone.
+2. Open the downloaded file.
+3. If Android asks for permission, allow installs from that browser or file manager.
+4. Tap Install.
+5. Open Scam Shield.
 
-## Run on Android
+## Features
+
+- Paste a suspicious message and scan it.
+- Get a risk score from Low to Critical.
+- See red flags such as payment pressure, credential requests, fake delivery links, suspicious domains, and impersonation.
+- Detect visible links, phone numbers, and email addresses.
+- View a response plan for what to do next.
+- Share a plain-English scam report.
+- Save recent scans on the device.
+- Use the Safety Guide for common scam patterns and reporting resources.
+
+## Privacy
+
+Scam Shield analyzes messages locally in this version. The pasted message is not sent to an AI provider or external server by default.
+
+If a backend is added later, API keys should stay on the backend server, not inside the Android app.
+
+## Developer Setup
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Start the Expo development server:
+
+```bash
 npm run start
 ```
 
-Then open the Expo Go app on Android and scan the QR code. Your phone and this machine need to
-be on the same network. If LAN discovery is blocked, use:
+Then open Expo Go on Android and scan the QR code.
+
+Run the type check:
 
 ```bash
-npm run start:tunnel
+npm run typecheck
 ```
 
-On a machine with the Android SDK and `adb` installed, you can also run:
-
-```bash
-npm run android
-```
-
-## Production architecture
-
-Do not put an AI provider key in the app. Use:
-
-```text
-Android app -> your backend -> AI provider
-```
-
-The included local analyzer gives useful MVP behavior without sending private messages off-device. When a backend is added, it should enforce authentication, rate limits, privacy controls, model prompts, and cost limits.
-
-## Build an APK
+Build a new APK with EAS:
 
 ```bash
 npx eas-cli build -p android --profile apk
 ```
 
-The `apk` EAS profile builds an installable Android Package instead of the Play Store `.aab`
-format.
+## Project
+
+- Framework: Expo React Native
+- Platform: Android
+- Package name: `com.naren.scamshield`
+- Current APK: `dist/scam-shield-v0.1.0.apk`
