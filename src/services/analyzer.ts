@@ -1,5 +1,18 @@
 export type RiskLevel = "Low" | "Medium" | "High" | "Critical";
 
+export type MitreTechnique = {
+  id: string;
+  name: string;
+  tactic: string;
+};
+
+export type NistPhase = "Detection & Analysis" | "Containment" | "Eradication" | "Recovery";
+
+export type ResponseStep = {
+  action: string;
+  nistPhase: NistPhase;
+};
+
 export type Signal = {
   label: string;
   detail: string;
@@ -24,7 +37,22 @@ export type AnalysisResult = {
   contacts: ExtractedContact[];
   recommendedActions: string[];
   responsePlan: string[];
+  responseSteps: ResponseStep[];
+  mitreTechniques: MitreTechnique[];
   createdAt: string;
+};
+
+const MITRE = {
+  phishing:             { id: "T1566",     name: "Phishing",                        tactic: "Initial Access"       },
+  spearphishingLink:    { id: "T1566.002", name: "Spearphishing Link",              tactic: "Initial Access"       },
+  spearphishingService: { id: "T1566.003", name: "Spearphishing via Service",       tactic: "Initial Access"       },
+  phishingForInfo:      { id: "T1598",     name: "Phishing for Information",         tactic: "Reconnaissance"       },
+  financialTheft:       { id: "T1657",     name: "Financial Theft",                  tactic: "Impact"               },
+  inputCapture:         { id: "T1056",     name: "Input Capture",                    tactic: "Credential Access"    },
+  impersonation:        { id: "T1656",     name: "Impersonation",                    tactic: "Defense Evasion"      },
+  remoteAccess:         { id: "T1219",     name: "Remote Access Software",           tactic: "Command & Control"    },
+  stageLink:            { id: "T1608.005", name: "Stage Capabilities: Link Target",  tactic: "Resource Development" },
+  userExecution:        { id: "T1204",     name: "User Execution",                   tactic: "Execution"            },
 };
 
 type Rule = {
@@ -34,6 +62,7 @@ type Rule = {
   points: number;
   pattern: RegExp;
   evidence?: (message: string) => string | undefined;
+  mitre: MitreTechnique[];
 };
 
 const rules: Rule[] = [
@@ -42,98 +71,112 @@ const rules: Rule[] = [
     detail: "Scams often push immediate action so the user does not verify the request.",
     severity: "warning",
     points: 16,
-    pattern: /\b(urgent|immediately|final notice|last chance|act now|within 24 hours|account locked|suspended|legal action|warrant|arrest)\b/i
+    pattern: /\b(urgent|immediately|final notice|last chance|act now|within 24 hours|account locked|suspended|legal action|warrant|arrest)\b/i,
+    mitre: [MITRE.phishing, MITRE.userExecution]
   },
   {
     label: "Payment pressure",
     detail: "Requests for quick payment are a common sign of fraud.",
     severity: "danger",
     points: 22,
-    pattern: /\b(gift card|wire transfer|western union|moneygram|zelle|cash app|venmo|paypal friends|crypto|bitcoin|usdt|voucher|reload card)\b/i
+    pattern: /\b(gift card|wire transfer|western union|moneygram|zelle|cash app|venmo|paypal friends|crypto|bitcoin|usdt|voucher|reload card)\b/i,
+    mitre: [MITRE.financialTheft]
   },
   {
     label: "Credential request",
     detail: "Legitimate services rarely ask users to confirm passwords or MFA codes through a message.",
     severity: "danger",
     points: 24,
-    pattern: /\b(password|passcode|verification code|mfa code|2fa code|otp|login details|confirm your account|verify your identity)\b/i
+    pattern: /\b(password|passcode|verification code|mfa code|2fa code|otp|login details|confirm your account|verify your identity)\b/i,
+    mitre: [MITRE.phishingForInfo, MITRE.inputCapture]
   },
   {
     label: "Prize or refund bait",
     detail: "Unexpected rewards, refunds, and winnings are often used to collect fees or personal data.",
     severity: "warning",
     points: 15,
-    pattern: /\b(congratulations|winner|you won|prize|reward|refund approved|rebate|claim now|selected)\b/i
+    pattern: /\b(congratulations|winner|you won|prize|reward|refund approved|rebate|claim now|selected)\b/i,
+    mitre: [MITRE.phishing]
   },
   {
     label: "Delivery impersonation",
     detail: "Fake package notices commonly use small fees and tracking links to steal cards.",
     severity: "warning",
     points: 15,
-    pattern: /\b(usps|ups|fedex|dhl|package|parcel|redelivery|delivery fee|customs fee|tracking)\b/i
+    pattern: /\b(usps|ups|fedex|dhl|package|parcel|redelivery|delivery fee|customs fee|tracking)\b/i,
+    mitre: [MITRE.spearphishingLink, MITRE.impersonation]
   },
   {
     label: "Bank or payment impersonation",
     detail: "Financial impersonation messages often try to trigger panic around fraud or locked accounts.",
     severity: "danger",
     points: 18,
-    pattern: /\b(bank|debit card|credit card|transaction declined|fraud alert|chase|wells fargo|bank of america|capital one|paypal|venmo|cash app)\b/i
+    pattern: /\b(bank|debit card|credit card|transaction declined|fraud alert|chase|wells fargo|bank of america|capital one|paypal|venmo|cash app)\b/i,
+    mitre: [MITRE.impersonation, MITRE.phishing]
   },
   {
     label: "Remote access request",
     detail: "Tech support scams often ask users to install apps or grant device access.",
     severity: "danger",
     points: 22,
-    pattern: /\b(anydesk|teamviewer|remote access|screen share|install this app|support agent|security department)\b/i
+    pattern: /\b(anydesk|teamviewer|remote access|screen share|install this app|support agent|security department)\b/i,
+    mitre: [MITRE.remoteAccess]
   },
   {
     label: "Personal information request",
     detail: "Requests for SSN, date of birth, or card data should be verified through official channels.",
     severity: "danger",
     points: 20,
-    pattern: /\b(ssn|social security|date of birth|dob|card number|cvv|routing number|account number|driver'?s license)\b/i
+    pattern: /\b(ssn|social security|date of birth|dob|card number|cvv|routing number|account number|driver'?s license)\b/i,
+    mitre: [MITRE.phishingForInfo]
   },
   {
     label: "Recruiting or job bait",
     detail: "Fake jobs often promise easy money and move the conversation to payment or identity collection.",
     severity: "warning",
     points: 14,
-    pattern: /\b(remote job|work from home|hiring immediately|interview on telegram|easy income|daily pay|personal assistant)\b/i
+    pattern: /\b(remote job|work from home|hiring immediately|interview on telegram|easy income|daily pay|personal assistant)\b/i,
+    mitre: [MITRE.spearphishingService]
   },
   {
     label: "Unusual contact channel",
     detail: "Scammers often move victims away from the original platform to avoid moderation.",
     severity: "warning",
     points: 12,
-    pattern: /\b(telegram|whatsapp|signal|google chat|text me only|do not call)\b/i
+    pattern: /\b(telegram|whatsapp|signal|google chat|text me only|do not call)\b/i,
+    mitre: [MITRE.spearphishingService]
   },
   {
     label: "Marketplace pressure",
     detail: "Marketplace scams often ask for deposits, shipping workarounds, or communication away from the platform.",
     severity: "warning",
     points: 14,
-    pattern: /\b(deposit|hold the item|shipping agent|courier will pick up|marketplace protection|zelle only|cashier'?s check)\b/i
+    pattern: /\b(deposit|hold the item|shipping agent|courier will pick up|marketplace protection|zelle only|cashier'?s check)\b/i,
+    mitre: [MITRE.financialTheft]
   },
   {
     label: "Order or invoice bait",
     detail: "Fake invoices and order confirmations try to make users call a scam support number.",
     severity: "warning",
     points: 16,
-    pattern: /\b(invoice|receipt|subscription renewed|order confirmation|charged|billing department|cancel this order)\b/i
+    pattern: /\b(invoice|receipt|subscription renewed|order confirmation|charged|billing department|cancel this order)\b/i,
+    mitre: [MITRE.phishing, MITRE.userExecution]
   },
   {
     label: "Recovery scam language",
     detail: "Promises to recover lost crypto, bank funds, or social accounts often lead to more fees or identity theft.",
     severity: "danger",
     points: 20,
-    pattern: /\b(recover your funds|asset recovery|wallet recovery|hacked account recovery|refund agent|chargeback specialist)\b/i
+    pattern: /\b(recover your funds|asset recovery|wallet recovery|hacked account recovery|refund agent|chargeback specialist)\b/i,
+    mitre: [MITRE.financialTheft, MITRE.phishingForInfo]
   },
   {
     label: "Romance or trust-building bait",
     detail: "Fraudsters may build urgency through personal trust, emergencies, or requests to keep the conversation private.",
     severity: "warning",
     points: 13,
-    pattern: /\b(my love|sweetheart|emergency travel|military deployment|private conversation|do not tell anyone)\b/i
+    pattern: /\b(my love|sweetheart|emergency travel|military deployment|private conversation|do not tell anyone)\b/i,
+    mitre: [MITRE.phishing]
   }
 ];
 
@@ -164,6 +207,7 @@ export function analyzeMessage(message: string): AnalysisResult {
   const links = extractLinks(normalized);
   const contacts = extractContacts(normalized);
   const signals: Signal[] = [];
+  const triggeredMitre: MitreTechnique[] = [];
   let score = 0;
 
   for (const rule of rules) {
@@ -175,6 +219,7 @@ export function analyzeMessage(message: string): AnalysisResult {
         severity: rule.severity,
         evidence: rule.evidence?.(normalized)
       });
+      triggeredMitre.push(...rule.mitre);
     }
   }
 
@@ -186,6 +231,7 @@ export function analyzeMessage(message: string): AnalysisResult {
       severity: "warning",
       evidence: links[0]
     });
+    triggeredMitre.push(MITRE.spearphishingLink);
   }
 
   if (contacts.length > 0) {
@@ -206,6 +252,7 @@ export function analyzeMessage(message: string): AnalysisResult {
       severity: "danger",
       evidence: links.find((link) => shortenerPattern.test(link))
     });
+    triggeredMitre.push(MITRE.stageLink);
   }
 
   if (links.some((link) => riskyTldPattern.test(link))) {
@@ -216,6 +263,7 @@ export function analyzeMessage(message: string): AnalysisResult {
       severity: "warning",
       evidence: links.find((link) => riskyTldPattern.test(link))
     });
+    triggeredMitre.push(MITRE.stageLink);
   }
 
   if (obfuscatedLinkPattern.test(normalized) && links.length === 0) {
@@ -225,6 +273,7 @@ export function analyzeMessage(message: string): AnalysisResult {
       detail: "Spelling a website as words can bypass filters and make a destination harder to inspect.",
       severity: "warning"
     });
+    triggeredMitre.push(MITRE.stageLink);
   }
 
   if (lookalikePattern.test(normalized)) {
@@ -235,6 +284,7 @@ export function analyzeMessage(message: string): AnalysisResult {
       severity: "danger",
       evidence: normalized.match(lookalikePattern)?.[0]
     });
+    triggeredMitre.push(MITRE.impersonation);
   }
 
   const mismatch = findBrandMismatch(normalized, links);
@@ -246,6 +296,7 @@ export function analyzeMessage(message: string): AnalysisResult {
       severity: "danger",
       evidence: mismatch.link
     });
+    triggeredMitre.push(MITRE.impersonation);
   }
 
   if (/\bkindly\b/i.test(normalized)) {
@@ -261,6 +312,8 @@ export function analyzeMessage(message: string): AnalysisResult {
   score = Math.max(0, Math.min(100, score));
   const riskLevel = getRiskLevel(score, signals);
   const category = getCategory(normalized, signals);
+  const responseSteps = getResponsePlan(riskLevel, category, links, contacts);
+  const mitreTechniques = [...new Map(triggeredMitre.map((t) => [t.id, t])).values()];
 
   return {
     id: createId(),
@@ -272,7 +325,9 @@ export function analyzeMessage(message: string): AnalysisResult {
     links,
     contacts,
     recommendedActions: getRecommendedActions(riskLevel, category, links),
-    responsePlan: getResponsePlan(riskLevel, category, links, contacts),
+    responsePlan: responseSteps.map((s) => s.action),
+    responseSteps,
+    mitreTechniques,
     createdAt: new Date().toISOString()
   };
 }
@@ -421,27 +476,45 @@ function getResponsePlan(
   category: string,
   links: string[],
   contacts: ExtractedContact[]
-): string[] {
-  const plan = ["Pause before replying, clicking, calling, or paying.", "Verify through a channel you already trust."];
+): ResponseStep[] {
+  const plan: ResponseStep[] = [
+    { action: "Pause before replying, clicking, calling, or paying.", nistPhase: "Detection & Analysis" },
+    { action: "Verify through a channel you already trust.", nistPhase: "Detection & Analysis" }
+  ];
 
   if (links.length > 0) {
-    plan.push("Do not sign in from the message link. Open the official app or type the official website.");
+    plan.push({
+      action: "Do not sign in from the message link. Open the official app or type the official website.",
+      nistPhase: "Containment"
+    });
   }
 
   if (contacts.length > 0) {
-    plan.push("Do not call or email the contact listed in the message. Use a known number or official support page.");
+    plan.push({
+      action: "Do not call or email the contact listed in the message. Use a known number or official support page.",
+      nistPhase: "Containment"
+    });
   }
 
   if (riskLevel === "Critical" || riskLevel === "High") {
-    plan.push("Save a screenshot and warn the person or account the message is pretending to be from.");
+    plan.push({
+      action: "Save a screenshot and warn the person or account the message is pretending to be from.",
+      nistPhase: "Detection & Analysis"
+    });
   }
 
   if (category.includes("Banking")) {
-    plan.push("If money or card data was shared, contact the bank from the card number and ask about fraud controls.");
+    plan.push({
+      action: "If money or card data was shared, contact the bank from the card number and ask about fraud controls.",
+      nistPhase: "Recovery"
+    });
   }
 
   if (category.includes("Credential")) {
-    plan.push("If a password or code was shared, change the password and revoke active sessions from a trusted device.");
+    plan.push({
+      action: "If a password or code was shared, change the password and revoke active sessions from a trusted device.",
+      nistPhase: "Eradication"
+    });
   }
 
   return plan;

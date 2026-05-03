@@ -9,7 +9,7 @@ import {
 import { Button } from "../components/Button";
 import { RiskBadge } from "../components/RiskBadge";
 import { Section } from "../components/Section";
-import type { AnalysisResult, Signal } from "../services/analyzer";
+import type { AnalysisResult, MitreTechnique, NistPhase, Signal } from "../services/analyzer";
 import { colors, radii, spacing } from "../theme/theme";
 
 type AnalyzeScreenProps = {
@@ -80,6 +80,47 @@ function EmptyResult() {
   );
 }
 
+const nistColors: Record<NistPhase, string> = {
+  "Detection & Analysis": "#2563EB",
+  "Containment": "#D97706",
+  "Eradication": "#DC2626",
+  "Recovery": "#059669"
+};
+
+const tacticColors: Record<string, string> = {
+  "Initial Access":       "#2563EB",
+  "Reconnaissance":       "#7C3AED",
+  "Impact":               "#DC2626",
+  "Credential Access":    "#D97706",
+  "Defense Evasion":      "#0891B2",
+  "Command & Control":    "#991B1B",
+  "Resource Development": "#5E7491",
+  "Execution":            "#EA580C"
+};
+
+function ThreatIntelPanel({ techniques }: { techniques: MitreTechnique[] }) {
+  if (!techniques || techniques.length === 0) return null;
+
+  return (
+    <Section title="MITRE ATT&CK">
+      {techniques.map((tech) => {
+        const color = tacticColors[tech.tactic] ?? "#5E7491";
+        return (
+          <View key={tech.id} style={styles.mitreRow}>
+            <View style={[styles.mitreBadge, { backgroundColor: color + "18", borderColor: color + "40" }]}>
+              <Text style={[styles.mitreId, { color }]}>{tech.id}</Text>
+            </View>
+            <View style={styles.mitreInfo}>
+              <Text style={styles.mitreName}>{tech.name}</Text>
+              <Text style={[styles.mitreTactic, { color }]}>{tech.tactic}</Text>
+            </View>
+          </View>
+        );
+      })}
+    </Section>
+  );
+}
+
 function ResultPanel({
   result,
   onShareReport
@@ -88,7 +129,8 @@ function ResultPanel({
   onShareReport: () => void;
 }) {
   const contacts = result.contacts ?? [];
-  const responsePlan = result.responsePlan ?? result.recommendedActions;
+  const displaySteps = result.responseSteps ??
+    (result.responsePlan ?? result.recommendedActions).map((action) => ({ action, nistPhase: undefined }));
 
   return (
     <View>
@@ -106,6 +148,8 @@ function ResultPanel({
           <SignalRow key={`${signal.label}-${index}`} signal={signal} />
         ))}
       </Section>
+
+      <ThreatIntelPanel techniques={result.mitreTechniques ?? []} />
 
       {result.links.length > 0 ? (
         <Section title="Visible links">
@@ -130,12 +174,21 @@ function ResultPanel({
       ) : null}
 
       <Section title="Response plan">
-        {responsePlan.map((action, index) => (
-          <View key={action} style={styles.planRow}>
+        {displaySteps.map((step, index) => (
+          <View key={step.action} style={styles.planRow}>
             <View style={styles.planNumberWrap}>
               <Text style={styles.planNumber}>{index + 1}</Text>
             </View>
-            <Text style={styles.actionText}>{action}</Text>
+            <View style={styles.planStepBody}>
+              {step.nistPhase ? (
+                <View style={[styles.nistBadge, { backgroundColor: nistColors[step.nistPhase] + "15", borderColor: nistColors[step.nistPhase] + "35" }]}>
+                  <Text style={[styles.nistBadgeText, { color: nistColors[step.nistPhase] }]}>
+                    NIST · {step.nistPhase}
+                  </Text>
+                </View>
+              ) : null}
+              <Text style={styles.actionText}>{step.action}</Text>
+            </View>
           </View>
         ))}
       </Section>
@@ -346,6 +399,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700"
   },
+  mitreRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.sm
+  },
+  mitreBadge: {
+    borderRadius: radii.sm - 2,
+    borderWidth: 1,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    minWidth: 86,
+    alignItems: "center"
+  },
+  mitreId: {
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0.3,
+    fontFamily: "monospace" as const
+  },
+  mitreInfo: {
+    flex: 1
+  },
+  mitreName: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "700"
+  },
+  mitreTactic: {
+    fontSize: 11,
+    fontWeight: "600",
+    marginTop: 1,
+    letterSpacing: 0.2
+  },
   planRow: {
     alignItems: "flex-start",
     flexDirection: "row",
@@ -360,12 +447,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 22,
     justifyContent: "center",
+    marginTop: 2,
     width: 22
   },
   planNumber: {
     color: colors.primary,
     fontSize: 12,
     fontWeight: "900"
+  },
+  planStepBody: {
+    flex: 1,
+    gap: spacing.xs
+  },
+  nistBadge: {
+    alignSelf: "flex-start",
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3
+  },
+  nistBadgeText: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.4
   },
   actionRow: {
     alignItems: "flex-start",
